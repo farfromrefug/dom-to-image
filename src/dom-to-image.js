@@ -172,7 +172,14 @@
             });
 
         function makeNodeCopy(node) {
-            if (node instanceof HTMLCanvasElement) return util.makeImage(node.toDataURL());
+            var type = node.nodeName.toLowerCase();
+            if (type === 'script') {
+                throw "ignored script node";
+            } else if (type === 'iframe') {
+                throw "ignored iframe node";
+            } else if (type === 'canvas') {
+                return util.makeImage(node.toDataURL());
+            }
             return node.cloneNode(false);
         }
 
@@ -202,6 +209,8 @@
 
         function processClone(original, clone, options) {
             if (!(clone instanceof Element)) return clone;
+            var originaltype = original.nodeName.toLowerCase();
+            var clonetype = clone.nodeName.toLowerCase();
             var window = options.window || window;
 
             return Promise.resolve()
@@ -276,16 +285,16 @@
             }
 
             function copyUserInput() {
-                if (original instanceof HTMLTextAreaElement) clone.innerHTML = original.value;
-                if (original instanceof HTMLInputElement) clone.setAttribute("value", original.value);
+                if (originaltype === 'textarea') clone.innerHTML = original.value;
+                if (originaltype === 'input') clone.setAttribute("value", original.value);
             }
 
             function fixSvg() {
-                if (!(clone instanceof SVGElement)) return;
+                if (clonetype !== 'svg') return;
                 clone.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
 
-                if (!(clone instanceof SVGRectElement)) return;
-                ['width', 'height'].forEach(function (attribute) {
+                if (clonetype !== 'svgrect') return;
+                ['width', 'height'].forEach(function(attribute) {
                     var value = clone.getAttribute(attribute);
                     if (!value) return;
 
