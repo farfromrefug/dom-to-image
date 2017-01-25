@@ -9,6 +9,7 @@
     var domtoimage = {
         toSvg: toSvg,
         toPng: toPng,
+        toImage: toImage,
         toJpeg: toJpeg,
         toBlob: toBlob,
         toPixelData: toPixelData,
