@@ -188,17 +188,17 @@
             var children = original.childNodes;
             if (children.length === 0) return Promise.resolve(clone);
 
-            return cloneChildrenInOrder(clone, util.asArray(children), filter)
-                .then(function () {
+            return cloneChildrenInOrder(clone, util.asArray(children), options)
+                .then(function() {
                     return clone;
                 });
 
-            function cloneChildrenInOrder(parent, children, filter) {
+            function cloneChildrenInOrder(parent, children, options) {
                 var done = Promise.resolve();
                 children.forEach(function (child) {
                     done = done
-                        .then(function () {
-                            return cloneNode(child, filter);
+                        .then(function() {
+                            return cloneNode(child, options);
                         })
                         .then(function (childClone) {
                             if (childClone) parent.appendChild(childClone);
