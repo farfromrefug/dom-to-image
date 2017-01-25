@@ -41,17 +41,18 @@
      * */
     function toSvg(node, options) {
         options = options || {};
+        var window = options.window || window;
         return Promise.resolve(node)
-            .then(function (node) {
-                return cloneNode(node, options.filter, true);
+            .then(function(node) {
+                return cloneNode(node, options, true);
             })
             .then(embedFonts)
             .then(inlineImages)
             .then(applyOptions)
             .then(function (clone) {
                 return makeSvgDataUri(clone,
-                    options.width || util.width(node),
-                    options.height || util.height(node)
+                    options.width || util.width(window, node),
+                    options.height || util.height(window, node)
                 );
             });
 
@@ -76,13 +77,14 @@
      * @return {Promise} - A promise that is fulfilled with a Uint8Array containing RGBA pixel data.
      * */
     function toPixelData(node, options) {
+        var window = options.window || window;
         return draw(node, options || {})
             .then(function (canvas) {
                 return canvas.getContext('2d').getImageData(
                     0,
                     0,
-                    util.width(node),
-                    util.height(node)
+                    util.width(window, node),
+                    util.height(window, node)
                 ).data;
             });
     }
@@ -122,7 +124,15 @@
             .then(util.canvasToBlob);
     }
 
+    function toImage(domNode, options) {
+        options = options || {};
+        var window = options.window || window;
+        return toPng(domNode, options)
+            .then(util.makeImage);
+    }
+
     function draw(domNode, options) {
+        var window = options.window || window;
         return toSvg(domNode, options)
             .then(util.makeImage)
             .then(util.delay(100))
@@ -134,8 +144,8 @@
 
         function newCanvas(domNode) {
             var canvas = document.createElement('canvas');
-            canvas.width = options.width || util.width(domNode);
-            canvas.height = options.height || util.height(domNode);
+            canvas.width = options.width || util.width(window, domNode);
+            canvas.height = options.height || util.height(window, domNode);
 
             if (options.bgcolor) {
                 var ctx = canvas.getContext('2d');
@@ -147,16 +157,18 @@
         }
     }
 
-    function cloneNode(node, filter, root) {
-        if (!root && filter && !filter(node)) return Promise.resolve();
+    function cloneNode(node, options, root) {
+        if (!root && options.filter && !options.filter(node)) return Promise.resolve();
 
         return Promise.resolve(node)
             .then(makeNodeCopy)
-            .then(function (clone) {
-                return cloneChildren(node, clone, filter);
+            .then(function(clone) {
+                return cloneChildren(node, clone, options);
             })
-            .then(function (clone) {
-                return processClone(node, clone);
+            .then(function(clone) {
+                return processClone(node, clone, options);
+            }).catch(function(err) {
+                return undefined;
             });
 
         function makeNodeCopy(node) {
@@ -164,7 +176,7 @@
             return node.cloneNode(false);
         }
 
-        function cloneChildren(original, clone, filter) {
+        function cloneChildren(original, clone, options) {
             var children = original.childNodes;
             if (children.length === 0) return Promise.resolve(clone);
 
@@ -188,8 +200,9 @@
             }
         }
 
-        function processClone(original, clone) {
+        function processClone(original, clone, options) {
             if (!(clone instanceof Element)) return clone;
+            var window = options.window || window;
 
             return Promise.resolve()
                 .then(cloneStyle)
@@ -502,19 +515,19 @@
             return string.replace(/#/g, '%23').replace(/\n/g, '%0A');
         }
 
-        function width(node) {
-            var leftBorder = px(node, 'border-left-width');
-            var rightBorder = px(node, 'border-right-width');
+        function width(window, node) {
+            var leftBorder = px(window, node, 'border-left-width');
+            var rightBorder = px(window, node, 'border-right-width');
             return node.scrollWidth + leftBorder + rightBorder;
         }
 
-        function height(node) {
-            var topBorder = px(node, 'border-top-width');
-            var bottomBorder = px(node, 'border-bottom-width');
+        function height(window, node) {
+            var topBorder = px(window, node, 'border-top-width');
+            var bottomBorder = px(window, node, 'border-bottom-width');
             return node.scrollHeight + topBorder + bottomBorder;
         }
 
-        function px(node, styleProperty) {
+        function px(window, node, styleProperty) {
             var value = window.getComputedStyle(node).getPropertyValue(styleProperty);
             return parseFloat(value.replace('px', ''));
         }
