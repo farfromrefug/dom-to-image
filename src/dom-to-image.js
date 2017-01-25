@@ -1,4 +1,4 @@
-(function (global) {
+(function(global) {
     'use strict';
 
     var util = newUtil();
@@ -37,7 +37,7 @@
      * @param {Number} options.height - height to be applied to node before rendering.
      * @param {Object} options.style - an object whose properties to be copied to node's style before rendering.
      * @param {Number} options.quality - a Number between 0 and 1 indicating image quality (applicable to JPEG only),
-                defaults to 1.0.
+     * @param {Boolean} options.skipFonts - Whether to skip downloading fonts (default: false)
      * @return {Promise} - A promise that is fulfilled with a SVG image data URL
      * */
     function toSvg(node, options) {
@@ -47,7 +47,11 @@
             .then(function(node) {
                 return cloneNode(node, options, true);
             })
-            // .then(embedFonts)
+            .then(function(node) {
+                if (!options.skipFonts)
+                    return embedFonts(node);
+                return node;
+            })
             .then(inlineImages)
             .then(applyOptions)
             .then(function(clone) {
@@ -446,7 +450,7 @@
         }
 
         function makeImage(uri) {
-           return new Promise(function(resolve, reject) {
+            return new Promise(function(resolve, reject) {
                 var image = new Image();
                 image.onload = function() {
                     resolve(image);
