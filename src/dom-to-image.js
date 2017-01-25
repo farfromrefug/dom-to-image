@@ -47,10 +47,10 @@
             .then(function(node) {
                 return cloneNode(node, options, true);
             })
-            .then(embedFonts)
+            // .then(embedFonts)
             .then(inlineImages)
             .then(applyOptions)
-            .then(function (clone) {
+            .then(function(clone) {
                 return makeSvgDataUri(clone,
                     options.width || util.width(window, node),
                     options.height || util.height(window, node)
@@ -64,7 +64,7 @@
             if (options.height) clone.style.height = options.height + 'px';
 
             if (options.style)
-                Object.keys(options.style).forEach(function (property) {
+                Object.keys(options.style).forEach(function(property) {
                     clone.style[property] = options.style[property];
                 });
 
@@ -80,7 +80,7 @@
     function toPixelData(node, options) {
         var window = options.window || window;
         return draw(node, options || {})
-            .then(function (canvas) {
+            .then(function(canvas) {
                 return canvas.getContext('2d').getImageData(
                     0,
                     0,
@@ -97,7 +97,7 @@
      * */
     function toPng(node, options) {
         return draw(node, options || {})
-            .then(function (canvas) {
+            .then(function(canvas) {
                 return canvas.toDataURL();
             });
     }
@@ -110,7 +110,7 @@
     function toJpeg(node, options) {
         options = options || {};
         return draw(node, options)
-            .then(function (canvas) {
+            .then(function(canvas) {
                 return canvas.toDataURL('image/jpeg', options.quality || 1.0);
             });
     }
@@ -137,7 +137,7 @@
         return toSvg(domNode, options)
             .then(util.makeImage)
             .then(util.delay(100))
-            .then(function (image) {
+            .then(function(image) {
                 var canvas = newCanvas(domNode);
                 canvas.getContext('2d').drawImage(image, 0, 0);
                 return canvas;
@@ -195,12 +195,12 @@
 
             function cloneChildrenInOrder(parent, children, options) {
                 var done = Promise.resolve();
-                children.forEach(function (child) {
+                children.forEach(function(child) {
                     done = done
                         .then(function() {
                             return cloneNode(child, options);
                         })
-                        .then(function (childClone) {
+                        .then(function(childClone) {
                             if (childClone) parent.appendChild(childClone);
                         });
                 });
@@ -219,7 +219,7 @@
                 .then(clonePseudoElements)
                 .then(copyUserInput)
                 .then(fixSvg)
-                .then(function () {
+                .then(function() {
                     return clone;
                 });
 
@@ -231,7 +231,7 @@
                     else copyProperties(source, target);
 
                     function copyProperties(source, target) {
-                        util.asArray(source).forEach(function (name) {
+                        util.asArray(source).forEach(function(name) {
                             target.setProperty(
                                 name,
                                 source.getPropertyValue(name),
@@ -243,7 +243,7 @@
             }
 
             function clonePseudoElements() {
-                [':before', ':after'].forEach(function (element) {
+                [':before', ':after'].forEach(function(element) {
                     clonePseudoElement(element);
                 });
 
@@ -307,7 +307,7 @@
 
     function embedFonts(node) {
         return fontFaces.resolveAll()
-            .then(function (cssText) {
+            .then(function(cssText) {
                 var styleNode = document.createElement('style');
                 node.appendChild(styleNode);
                 styleNode.appendChild(document.createTextNode(cssText));
@@ -317,26 +317,26 @@
 
     function inlineImages(node) {
         return images.inlineAll(node)
-            .then(function () {
+            .then(function() {
                 return node;
             });
     }
 
     function makeSvgDataUri(node, width, height) {
         return Promise.resolve(node)
-            .then(function (node) {
+            .then(function(node) {
                 node.setAttribute('xmlns', 'http://www.w3.org/1999/xhtml');
                 return new XMLSerializer().serializeToString(node);
             })
             .then(util.escapeXhtml)
-            .then(function (xhtml) {
+            .then(function(xhtml) {
                 return '<foreignObject x="0" y="0" width="100%" height="100%">' + xhtml + '</foreignObject>';
             })
-            .then(function (foreignObject) {
+            .then(function(foreignObject) {
                 return '<svg xmlns="http://www.w3.org/2000/svg" width="' + width + '" height="' + height + '">' +
                     foreignObject + '</svg>';
             })
-            .then(function (svg) {
+            .then(function(svg) {
                 return 'data:image/svg+xml;charset=utf-8,' + svg;
             });
     }
@@ -398,7 +398,7 @@
         }
 
         function toBlob(canvas) {
-            return new Promise(function (resolve) {
+            return new Promise(function(resolve) {
                 var binaryString = window.atob(canvas.toDataURL().split(',')[1]);
                 var length = binaryString.length;
                 var binaryArray = new Uint8Array(length);
@@ -414,7 +414,7 @@
 
         function canvasToBlob(canvas) {
             if (canvas.toBlob)
-                return new Promise(function (resolve) {
+                return new Promise(function(resolve) {
                     canvas.toBlob(resolve);
                 });
 
@@ -435,7 +435,7 @@
         function uid() {
             var index = 0;
 
-            return function () {
+            return function() {
                 return 'u' + fourRandomChars() + index++;
 
                 function fourRandomChars() {
@@ -446,9 +446,9 @@
         }
 
         function makeImage(uri) {
-            return new Promise(function (resolve, reject) {
+           return new Promise(function(resolve, reject) {
                 var image = new Image();
-                image.onload = function () {
+                image.onload = function() {
                     resolve(image);
                 };
                 image.onerror = reject;
@@ -459,7 +459,7 @@
         function getAndEncode(url) {
             var TIMEOUT = 30000;
 
-            return new Promise(function (resolve) {
+            return new Promise(function(resolve) {
                 var request = new XMLHttpRequest();
 
                 request.onreadystatechange = done;
@@ -478,7 +478,7 @@
                     }
 
                     var encoder = new FileReader();
-                    encoder.onloadend = function () {
+                    encoder.onloadend = function() {
                         var content = encoder.result.split(/,/)[1];
                         resolve(content);
                     };
@@ -505,9 +505,9 @@
         }
 
         function delay(ms) {
-            return function (arg) {
-                return new Promise(function (resolve) {
-                    setTimeout(function () {
+            return function(arg) {
+                return new Promise(function(resolve) {
+                    setTimeout(function() {
                         resolve(arg);
                     }, ms);
                 });
@@ -565,21 +565,21 @@
             while ((match = URL_REGEX.exec(string)) !== null) {
                 result.push(match[1]);
             }
-            return result.filter(function (url) {
+            return result.filter(function(url) {
                 return !util.isDataUrl(url);
             });
         }
 
         function inline(string, url, baseUrl, get) {
             return Promise.resolve(url)
-                .then(function (url) {
+                .then(function(url) {
                     return baseUrl ? util.resolveUrl(url, baseUrl) : url;
                 })
                 .then(get || util.getAndEncode)
-                .then(function (data) {
+                .then(function(data) {
                     return util.dataAsUrl(data, util.mimeType(url));
                 })
-                .then(function (dataUrl) {
+                .then(function(dataUrl) {
                     return string.replace(urlAsRegex(url), '$1' + dataUrl + '$3');
                 });
 
@@ -593,10 +593,10 @@
 
             return Promise.resolve(string)
                 .then(readUrls)
-                .then(function (urls) {
+                .then(function(urls) {
                     var done = Promise.resolve(string);
-                    urls.forEach(function (url) {
-                        done = done.then(function (string) {
+                    urls.forEach(function(url) {
+                        done = done.then(function(string) {
                             return inline(string, url, baseUrl, get);
                         });
                     });
@@ -619,14 +619,14 @@
 
         function resolveAll() {
             return readAll(document)
-                .then(function (webFonts) {
+                .then(function(webFonts) {
                     return Promise.all(
-                        webFonts.map(function (webFont) {
+                        webFonts.map(function(webFont) {
                             return webFont.resolve();
                         })
                     );
                 })
-                .then(function (cssStrings) {
+                .then(function(cssStrings) {
                     return cssStrings.join('\n');
                 });
         }
@@ -635,23 +635,23 @@
             return Promise.resolve(util.asArray(document.styleSheets))
                 .then(getCssRules)
                 .then(selectWebFontRules)
-                .then(function (rules) {
+                .then(function(rules) {
                     return rules.map(newWebFont);
                 });
 
             function selectWebFontRules(cssRules) {
                 return cssRules
-                    .filter(function (rule) {
+                    .filter(function(rule) {
                         return rule.type === CSSRule.FONT_FACE_RULE;
                     })
-                    .filter(function (rule) {
+                    .filter(function(rule) {
                         return inliner.shouldProcess(rule.style.getPropertyValue('src'));
                     });
             }
 
             function getCssRules(styleSheets) {
                 var cssRules = [];
-                styleSheets.forEach(function (sheet) {
+                styleSheets.forEach(function(sheet) {
                     try {
                         util.asArray(sheet.cssRules || []).forEach(cssRules.push.bind(cssRules));
                     } catch (e) {
@@ -667,7 +667,7 @@
                         var baseUrl = (webFontRule.parentStyleSheet || {}).href;
                         return inliner.inlineAll(webFontRule.cssText, baseUrl);
                     },
-                    src: function () {
+                    src: function() {
                         return webFontRule.style.getPropertyValue('src');
                     }
                 };
@@ -693,11 +693,11 @@
 
                 return Promise.resolve(element.src)
                     .then(get || util.getAndEncode)
-                    .then(function (data) {
+                    .then(function(data) {
                         return util.dataAsUrl(data, util.mimeType(element.src));
                     })
-                    .then(function (dataUrl) {
-                        return new Promise(function (resolve, reject) {
+                    .then(function(dataUrl) {
+                        return new Promise(function(resolve, reject) {
                             element.onload = resolve;
                             element.onerror = reject;
                             element.src = dataUrl;
@@ -710,12 +710,12 @@
             if (!(node instanceof Element)) return Promise.resolve(node);
 
             return inlineBackground(node)
-                .then(function () {
+                .then(function() {
                     if (node instanceof HTMLImageElement)
                         return newImage(node).inline();
                     else
                         return Promise.all(
-                            util.asArray(node.childNodes).map(function (child) {
+                            util.asArray(node.childNodes).map(function(child) {
                                 return inlineAll(child);
                             })
                         );
@@ -727,14 +727,14 @@
                 if (!background) return Promise.resolve(node);
 
                 return inliner.inlineAll(background)
-                    .then(function (inlined) {
+                    .then(function(inlined) {
                         node.style.setProperty(
                             'background',
                             inlined,
                             node.style.getPropertyPriority('background')
                         );
                     })
-                    .then(function () {
+                    .then(function() {
                         return node;
                     });
             }
