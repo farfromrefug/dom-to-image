@@ -6,3 +6,4 @@
 Gruntfile.js
 *.conf.js
 bower.json
+.*
