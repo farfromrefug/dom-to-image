@@ -165,21 +165,19 @@
             var canvas = document.createElement('canvas');
             canvas.width = options.width || util.width(window, domNode);
             canvas.height = options.height || util.height(window, domNode);
-
-            if (options.bgcolor) {
-                var ctx = canvas.getContext('2d');
-                ctx.fillStyle = options.bgcolor;
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-            }          
+     
             // height and width of canvas must be changed before scaling
             if (options.scalex) {
                 canvas.width = canvas.width * options.scalex;
             }
             if (options.scaley) {
                 canvas.height = canvas.height * options.scaley;
-            }
- 
-            // now we scale
+            }            
+            if (options.bgcolor) {
+                var ctx = canvas.getContext('2d');
+                ctx.fillStyle = options.bgcolor;
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+            } 
             if (options.scalex) {
                 var ctx = canvas.getContext('2d');
                 ctx.scale(options.scalex, 1);
