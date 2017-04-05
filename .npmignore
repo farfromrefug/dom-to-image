@@ -2,6 +2,7 @@
 /bower_components
 /node_modules
 /spec
+/src
 Gruntfile.js
 *.conf.js
 bower.json
