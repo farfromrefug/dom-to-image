@@ -163,6 +163,7 @@
 
         function newCanvas(domNode) {
             var canvas = document.createElement('canvas');
+            var ctx = canvas.getContext('2d');
             canvas.width = options.width || util.width(window, domNode);
             canvas.height = options.height || util.height(window, domNode);
      
@@ -174,16 +175,13 @@
                 canvas.height = canvas.height * options.scaley;
             }            
             if (options.bgcolor) {
-                var ctx = canvas.getContext('2d');
                 ctx.fillStyle = options.bgcolor;
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
             } 
             if (options.scalex) {
-                var ctx = canvas.getContext('2d');
                 ctx.scale(options.scalex, 1);
             }
             if (options.scaley) {
-                var ctx = canvas.getContext('2d');
                 ctx.scale(1, options.scaley);
             }
             return canvas;
@@ -200,7 +198,7 @@
             })
             .then(function(clone) {
                 return processClone(node, clone, options);
-            }).catch(function(err) {
+            }).catch(function() {
                 return undefined;
             });
 
