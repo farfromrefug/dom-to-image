@@ -1,6 +1,6 @@
 {
     "name": "dom-to-image",
-    "version": "2.5.6",
+    "version": "2.6.0",
     "description": "Generates an image from a DOM node using HTML5 canvas and SVG",
     "main": "dist/dom-to-image.min.js",
     "dependencies": {},
@@ -21,7 +21,6 @@
         "mocha": "^2.2.4"
     },
     "scripts": {
-        "prepublish": "tsc",
         "test": "./node_modules/.bin/grunt test"
     },
     "repository": {
